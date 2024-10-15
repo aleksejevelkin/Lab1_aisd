@@ -1,0 +1,8 @@
+Random array, selection_sort:
+0, 27, 99, 94, 163, 254, 363, 496, 646, 827, 1021 
+Sorted array, selection_sort:
+0, 30, 108, 91, 161, 249, 356, 501, 639, 819, 1002
+Almost sorted array, selection_sort:
+0, 28, 60, 92, 163, 256, 363, 496, 657, 824, 1020
+Reverse-sorted array, selection_sort:
+0, 30, 83, 171, 333, 475, 676, 920, 1211, 1535, 1886

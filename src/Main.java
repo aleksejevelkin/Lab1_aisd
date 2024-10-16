@@ -6,6 +6,23 @@ import java.io.File;
 
 class Sorts {
 
+    public static void shellSort(int[] array) {
+
+        for (int gap = array.length / 2; gap > 0; gap /= 2) {
+
+            for (int i = gap; i < array.length; i++) {
+                int temp = array[i];
+                int j = i;
+
+                while (j >= gap && array[j - gap] > temp) {
+                    array[j] = array[j - gap];
+                    j -= gap;
+                }
+                array[j] = temp;
+            }
+        }
+    }
+
     static class merge_sort{
         public static void mergeSort(int[] array, int left, int right) {
             if (left < right) {
@@ -55,9 +72,6 @@ class Sorts {
         }
 
     }
-
-
-
 
     public static void quickSort(int[] sortArr, int low, int high) {
         //завершить,если массив пуст или уже нечего делить
@@ -118,19 +132,6 @@ class Sorts {
         }
     }
 
-
-    public static void bubbleSort(int[] sortArr) {
-        for (int i = 0; i < sortArr.length - 1; i++) {
-            for (int j = 0; j < sortArr.length - i - 1; j++) {
-                if (sortArr[j + 1] < sortArr[j]) {
-                    int swap = sortArr[j];
-                    sortArr[j] = sortArr[j + 1];
-                    sortArr[j + 1] = swap;
-                }
-            }
-        }
-    }
-
     public static void bubbleSort3(int[] array) {
         int n = array.length; // Получаем длину массива
         // Внешний цикл проходит по всему массиву
@@ -153,34 +154,6 @@ class Sorts {
         }
     }
 
-    public static void bubbleSort2(int[] arr) {
-        int swapov = 0;
-        int obhodov = 0;
-        int n = arr.length;
-        boolean swapped;
-
-        for (int i = 0; i < n - 1; i++) {
-            swapped = false;
-            obhodov++;
-            for (int j = 0; j < n - i - 1; j++) {
-                if (arr[j] > arr[j + 1]) {
-                    // Меняем местами arr[j] и arr[j+1]
-                    int temp = arr[j];
-                    arr[j] = arr[j + 1];
-                    arr[j + 1] = temp;
-                    swapped = true;
-                    swapov++;
-                }
-            }
-
-            // Если за проход не было обменов, массив уже отсортирован
-            if (!swapped) {
-                break;
-            }
-
-        }
-        System.out.print("Свапов: " + swapov + "\n");
-    }
 }
 
 class Functions{
@@ -219,14 +192,7 @@ class Functions{
 
     }
 
-    public static void almost_sort_array(int[] array){
 
-        for(int i = 0; i<array.length; i++){
-            array[i] = i;
-        }
-
-        Functions.almost_sort(array);
-    }
 
     public static void array_sort(int[] array){
         for(int i = 0; i<array.length; i++){
@@ -280,6 +246,12 @@ class Functions{
         return endTime - startTime;
     }
 
+    public static long get_shell_time(int[] array){
+        long startTime = System.currentTimeMillis();
+        Sorts.shellSort(array);
+        long endTime = System.currentTimeMillis();
+        return endTime - startTime;
+    }
 
 
     public static void writeStringToFile(String content, String fileName) {
@@ -301,6 +273,15 @@ class Functions{
         } catch (IOException e) {
             System.out.println("Ошибка записи в файл: " + e.getMessage());
         }
+    }
+
+    public static void almost_sort_array(int[] array){
+
+        for(int i = 0; i<array.length; i++){
+            array[i] = i;
+        }
+
+        Functions.almost_sort(array);
     }
 
     public static void almost_sort(int[] sortArr){
@@ -340,7 +321,7 @@ class Functions{
 
 class Main {
 
-    public static void main(String args[]) {
+    public static void main(String[] args) {
 
         int counter = 0;
 
@@ -369,7 +350,10 @@ class Main {
         int[] almost_sorted_merge_time = new int[11];
         int[] reverse_sorted_merge_time = new int[11];
 
-
+        int[] random_shell_time = new int[11];
+        int[] sorted_shell_time = new int[11];
+        int[] almost_sorted_shell_time = new int[11];
+        int[] reverse_sorted_shell_time = new int[11];
 
 
 
@@ -454,10 +438,6 @@ class Main {
 
 
 
-
-
-
-
             Functions.array_randomizer(sortArr);
 
             random_quick_time[counter] = (int)Functions.get_quick_time(sortArr);
@@ -507,9 +487,36 @@ class Main {
 
             System.out.print("Время выполнения алгоритма merge sort для reverse sort массива при N = " + n + ": " + 0 + " МС.\n \n");
 
+
+
+            Functions.array_randomizer(sortArr);
+
+            random_merge_time[counter] = (int)Functions.get_shell_time(sortArr);
+
+            System.out.print("Время выполнения алгоритма shell sort для рандомного массива при N = " + n + ": " + 0 + " МС.\n \n");
+
+            Functions.array_sort(sortArr);
+
+            sorted_shell_time[counter] = (int)Functions.get_shell_time(sortArr);
+
+            System.out.print("Время выполнения алгоритма shell sort для sort массива при N = " + n + ": " + 0 + " МС.\n \n");
+
+            Functions.almost(sortArr);
+
+            almost_sorted_shell_time[counter] = (int)Functions.get_shell_time(sortArr);
+
+            System.out.print("Время выполнения алгоритма shell sort для почти sort массива при N = " + n + ": " + 0 + " МС.\n \n");
+
+            Functions.reverse_sort_array(sortArr);
+
+            reverse_sorted_shell_time[counter] = (int)Functions.get_shell_time(sortArr);
+
+            System.out.print("Время выполнения алгоритма shell sort для reverse sort массива при N = " + n + ": " + 0 + " МС.\n \n");
+
             counter++;
 
         }
+
 
 
         Functions.clearFile("//Users/aleksejevelkin/IdeaProjects/laba1/src/bubble.txt");
@@ -527,6 +534,7 @@ class Main {
         Functions.writeArrayToFile(reverse_sorted_bubble_time, "//Users/aleksejevelkin/IdeaProjects/laba1/src/bubble.txt");
 
 
+
         Functions.clearFile("//Users/aleksejevelkin/IdeaProjects/laba1/src/insertion.txt");
 
         Functions.writeStringToFile("Random array, insertion_sort:", "//Users/aleksejevelkin/IdeaProjects/laba1/src/insertion.txt");
@@ -540,6 +548,7 @@ class Main {
 
         Functions.writeStringToFile("Reverse-sorted array, insertion_sort:", "//Users/aleksejevelkin/IdeaProjects/laba1/src/insertion.txt");
         Functions.writeArrayToFile(reverse_sorted_insertion_time, "//Users/aleksejevelkin/IdeaProjects/laba1/src/insertion.txt");
+
 
 
         Functions.clearFile("//Users/aleksejevelkin/IdeaProjects/laba1/src/selection.txt");
@@ -557,6 +566,7 @@ class Main {
         Functions.writeArrayToFile(reverse_sorted_selection_time, "//Users/aleksejevelkin/IdeaProjects/laba1/src/selection.txt");
 
 
+
         Functions.clearFile("//Users/aleksejevelkin/IdeaProjects/laba1/src/quick.txt");
 
         Functions.writeStringToFile("Random array, quick_sort:", "//Users/aleksejevelkin/IdeaProjects/laba1/src/quick.txt");
@@ -572,6 +582,7 @@ class Main {
         Functions.writeArrayToFile(reverse_sorted_quick_time, "//Users/aleksejevelkin/IdeaProjects/laba1/src/quick.txt");
 
 
+
         Functions.clearFile("//Users/aleksejevelkin/IdeaProjects/laba1/src/merge.txt");
 
         Functions.writeStringToFile("Random array, merge_sort:", "//Users/aleksejevelkin/IdeaProjects/laba1/src/merge.txt");
@@ -585,6 +596,22 @@ class Main {
 
         Functions.writeStringToFile("Reverse-sorted array, merge_sort:", "//Users/aleksejevelkin/IdeaProjects/laba1/src/merge.txt");
         Functions.writeArrayToFile(reverse_sorted_merge_time, "//Users/aleksejevelkin/IdeaProjects/laba1/src/merge.txt");
+
+
+
+        Functions.clearFile("//Users/aleksejevelkin/IdeaProjects/laba1/src/shell.txt");
+
+        Functions.writeStringToFile("Random array, shell_sort:", "//Users/aleksejevelkin/IdeaProjects/laba1/src/shell.txt");
+        Functions.writeArrayToFile(random_shell_time, "//Users/aleksejevelkin/IdeaProjects/laba1/src/shell.txt");
+
+        Functions.writeStringToFile("Sorted array, shell_sort:", "//Users/aleksejevelkin/IdeaProjects/laba1/src/shell.txt");
+        Functions.writeArrayToFile(sorted_shell_time, "//Users/aleksejevelkin/IdeaProjects/laba1/src/shell.txt");
+
+        Functions.writeStringToFile("Almost sorted array, shell_sort:", "//Users/aleksejevelkin/IdeaProjects/laba1/src/shell.txt");
+        Functions.writeArrayToFile(almost_sorted_shell_time, "//Users/aleksejevelkin/IdeaProjects/laba1/src/shell.txt");
+
+        Functions.writeStringToFile("Reverse-sorted array, shell_sort:", "//Users/aleksejevelkin/IdeaProjects/laba1/src/shell.txt");
+        Functions.writeArrayToFile(reverse_sorted_shell_time, "//Users/aleksejevelkin/IdeaProjects/laba1/src/shell.txt");
 
 
     }

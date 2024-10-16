@@ -1,8 +1,8 @@
 Random array, quick_sort:
-0, 0, 1, 2, 3, 4, 3, 4, 5, 6, 6, 
+0, 1, 2, 1, 2, 3, 4, 4, 4, 6, 6, 
 Sorted array, quick_sort:
-0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 1, 
+0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 
 Almost sorted array, quick_sort:
-0, 0, 1, 1, 2, 3, 3, 4, 5, 5, 6, 
+0, 0, 1, 2, 2, 3, 3, 4, 5, 6, 6, 
 Reverse-sorted array, quick_sort:
-0, 0, 0, 1, 1, 0, 1, 1, 1, 1, 1, 
+0, 0, 0, 0, 0, 1, 1, 0, 1, 1, 1, 

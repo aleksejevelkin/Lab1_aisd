@@ -6,6 +6,100 @@ import java.io.File;
 
 class Sorts {
 
+    static class HeapSort {
+
+        public static void heapSort(int[] array) {
+            int n = array.length;
+            for (int i = n / 2 - 1; i >= 0; i--) {
+                heapify(array, n, i);
+            }
+
+            for (int i = n - 1; i > 0; i--) {
+
+                int temp = array[0];
+                array[0] = array[i];
+                array[i] = temp;
+
+                heapify(array, i, 0);
+            }
+        }
+
+
+        private static void heapify(int[] array, int n, int i) {
+            int largest = i;
+            int left = 2 * i + 1;
+            int right = 2 * i + 2;
+
+
+            if (left < n && array[left] > array[largest]) {
+                largest = left;
+            }
+
+
+            if (right < n && array[right] > array[largest]) {
+                largest = right;
+            }
+
+
+            if (largest != i) {
+
+                int swap = array[i];
+                array[i] = array[largest];
+                array[largest] = swap;
+
+                heapify(array, n, largest);
+            }
+        }
+    }
+
+    public static void hibbardSort(int[] array) {
+        int n = array.length;
+        int k = 1;
+
+        // Находим максимальное значение k для h_k < n
+        while ((1 << k) - 1 < n) k++;
+
+        for (int gap = (1 << (k - 1)) - 1; gap > 0; gap = (1 << --k) - 1) {
+            for (int i = gap; i < n; i++) {
+                int temp = array[i];
+                int j;
+                for (j = i; j >= gap && array[j - gap] > temp; j -= gap) {
+                    array[j] = array[j - gap];
+                }
+                array[j] = temp;
+            }
+        }
+    }
+
+    public static void prattSort(int[] array) {
+        int n = array.length;
+        int[] gaps = new int[n]; // Массив для хранения интервалов
+        int gapCount = 0;
+
+        // Генерация интервалов по формуле d_i = 2^i * 3^j
+        for (int i = 0; (1 << i) <= n; i++) {
+            for (int j = 0; (1 << i) * (3 << j) <= n; j++) {
+                int gap = (1 << i) * (3 << j);
+                if (gap <= n) {
+                    gaps[gapCount++] = gap; // Сохраняем интервал
+                }
+            }
+        }
+
+        // Сортировка с использованием интервалов
+        for (int k = gapCount - 1; k >= 0; k--) { // Проходим по интервалам в обратном порядке
+            int gap = gaps[k];
+            for (int i = gap; i < n; i++) {
+                int temp = array[i];
+                int j;
+                for (j = i; j >= gap && array[j - gap] > temp; j -= gap) {
+                    array[j] = array[j - gap];
+                }
+                array[j] = temp;
+            }
+        }
+    }
+
     public static void shellSort(int[] array) {
 
         for (int gap = array.length / 2; gap > 0; gap /= 2) {
@@ -33,7 +127,6 @@ class Sorts {
             }
         }
 
-        // Метод для слияния двух отсортированных частей массива
         public static void merge(int[] array, int left, int mid, int right) {
 
             int n1 = mid - left + 1;
@@ -74,14 +167,14 @@ class Sorts {
     }
 
     public static void quickSort(int[] sortArr, int low, int high) {
-        //завершить,если массив пуст или уже нечего делить
+
         if (sortArr.length == 0 || low >= high) return;
 
-        //выбираем опорный элемент
+
         int middle = low + (high - low) / 2;
         int border = sortArr[middle];
 
-        //разделияем на подмассивы и меняем местами
+
         int i = low, j = high;
         while (i <= j) {
             while (sortArr[i] < border) i++;
@@ -95,7 +188,7 @@ class Sorts {
             }
         }
 
-        //рекурсия для сортировки левой и правой части
+
         if (low < j) quickSort(sortArr, low, j);
         if (high > i) quickSort(sortArr, i, high);
     }
@@ -104,25 +197,25 @@ class Sorts {
         for (int i = 0; i < sortArr.length; i++) {
             int pos = i;
             int min = sortArr[i];
-            //цикл выбора наименьшего элемента
+
             for (int j = i + 1; j < sortArr.length; j++) {
                 if (sortArr[j] < min) {
-                    //pos - индекс наименьшего элемента
+
                     pos = j;
                     min = sortArr[j];
                 }
             }
             sortArr[pos] = sortArr[i];
-            //меняем местами наименьший с sortArr[i]
+
             sortArr[i] = min;
         }
     }
 
     public static void insertionSort(int[] sortArr) {
         int j;
-        //сортировку начинаем со второго элемента, т.к. считается, что первый элемент уже отсортирован
+
         for (int i = 1; i < sortArr.length; i++) {
-            //сохраняем ссылку на индекс предыдущего элемента
+
             int swap = sortArr[i];
             for (j = i; j > 0 && swap < sortArr[j - 1]; j--) {
                 //элементы отсортированного сегмента перемещаем вперёд, если они больше элемента для вставки
@@ -160,11 +253,7 @@ class Functions{
 
     public static void almost(int[] array){
 
-        for(int i = 0; i<array.length; i++){
-            array[i] = i;
-        }
-
-        Functions.shuffle(array);
+        Functions.array_randomizer(array);
 
         Sorts.quickSort(array, array.length/100*90, array.length-1);
 
@@ -252,6 +341,30 @@ class Functions{
         long endTime = System.currentTimeMillis();
         return endTime - startTime;
     }
+
+    public static long get_hibbard_time(int[] array){
+        long startTime = System.currentTimeMillis();
+        Sorts.hibbardSort(array);
+        long endTime = System.currentTimeMillis();
+        return endTime - startTime;
+    }
+
+    public static long get_pratt_time(int[] array){
+        long startTime = System.currentTimeMillis();
+        Sorts.prattSort(array);
+        long endTime = System.currentTimeMillis();
+        return endTime - startTime;
+    }
+
+
+
+    public static long get_heap_time(int[] array){
+        long startTime = System.currentTimeMillis();
+        Sorts.HeapSort.heapSort(array);
+        long endTime = System.currentTimeMillis();
+        return endTime - startTime;
+    }
+
 
 
     public static void writeStringToFile(String content, String fileName) {
@@ -355,6 +468,21 @@ class Main {
         int[] almost_sorted_shell_time = new int[11];
         int[] reverse_sorted_shell_time = new int[11];
 
+        int[] random_heap_time = new int[11];
+        int[] sorted_heap_time = new int[11];
+        int[] almost_sorted_heap_time = new int[11];
+        int[] reverse_sorted_heap_time = new int[11];
+
+        int[] random_hibbard_time = new int[11];
+        int[] sorted_hibbard_time = new int[11];
+        int[] almost_sorted_hibbard_time = new int[11];
+        int[] reverse_sorted_hibbard_time = new int[11];
+
+        int[] random_pratt_time = new int[11];
+        int[] sorted_pratt_time = new int[11];
+        int[] almost_sorted_pratt_time = new int[11];
+        int[] reverse_sorted_pratt_time = new int[11];
+
 
 
         for (int n=0; n<100001; n = n + 10000){
@@ -363,24 +491,21 @@ class Main {
 
             Functions.array_randomizer(sortArr); // рандомный массив
             random_bubble_time[counter] = (int)Functions.get_bubble_time(sortArr);
-            System.out.print("Время выполнения алгоритма bubble sort с случайным массивом при N = " + n + ": " + Functions.get_bubble_time(sortArr) + " МС. \n");
+
 
             Functions.array_sort(sortArr);
 
             sorted_bubble_time[counter] = (int)Functions.get_bubble_time(sortArr);
 
-            System.out.print("Время выполнения алгоритма bubble sort с отсортированным массивом при N = " + n + ": " + Functions.get_bubble_time(sortArr) + " МС.\n \n");
 
             Functions.almost(sortArr);
 
             almost_sorted_bubble_time[counter] = (int)Functions.get_bubble_time(sortArr);
-            System.out.print("Время выполнения алгоритма bubble sort с почти отсортированным массивом при N = " + n + ": " + Functions.get_bubble_time(sortArr) + " МС.\n \n");
+
 
             Functions.reverse_sort_array(sortArr);
 
             reverse_sorted_bubble_time[counter] = (int)Functions.get_bubble_time(sortArr);
-
-            System.out.print("Время выполнения алгоритма bubble sort с обратно отсортированным массивом при N = " + n + ": " + Functions.get_bubble_time(sortArr) + " МС.\n \n");
 
 
 
@@ -388,27 +513,27 @@ class Main {
 
             random_insertion_time[counter] = (int)Functions.get_insertion_time(sortArr);
 
-            System.out.print("Время выполнения алгоритма insertion sort для рандомного массива при N = " + n + ": " + 0 + " МС.\n \n");
+
 
             Functions.array_sort(sortArr);
 
             sorted_insertion_time[counter] = (int)Functions.get_insertion_time(sortArr);
 
-            System.out.print("Время выполнения алгоритма insertion sort для sort массива при N = " + n + ": " + 0 + " МС.\n \n");
 
-           // Functions.almost(sortArr);
+
+
 
             Functions.almost(sortArr);
 
             almost_sorted_insertion_time[counter] = (int)Functions.get_insertion_time(sortArr);
 
-            System.out.print("Время выполнения алгоритма insertion sort для почти sort массива при N = " + n + ": " + 0 + " МС.\n \n");
+
 
             Functions.reverse_sort_array(sortArr);
 
             reverse_sorted_insertion_time[counter] = (int)Functions.get_insertion_time(sortArr);
 
-            System.out.print("Время выполнения алгоритма insertion sort для reverse sort массива при N = " + n + ": " + 0 + " МС.\n \n");
+
 
 
 
@@ -416,25 +541,25 @@ class Main {
 
             random_selection_time[counter] = (int)Functions.get_selection_time(sortArr);
 
-            System.out.print("Время выполнения алгоритма selection sort для рандомного массива при N = " + n + ": " + 0 + " МС.\n \n");
+
 
             Functions.array_sort(sortArr);
 
             sorted_selection_time[counter] = (int)Functions.get_selection_time(sortArr);
 
-            System.out.print("Время выполнения алгоритма selection sort для sort массива при N = " + n + ": " + 0 + " МС.\n \n");
+
 
             Functions.almost(sortArr);
 
             almost_sorted_selection_time[counter] = (int)Functions.get_selection_time(sortArr);
 
-            System.out.print("Время выполнения алгоритма selection sort для почти sort массива при N = " + n + ": " + 0 + " МС.\n \n");
+
 
             Functions.reverse_sort_array(sortArr);
 
             reverse_sorted_selection_time[counter] = (int)Functions.get_selection_time(sortArr);
 
-            System.out.print("Время выполнения алгоритма selection sort для reverse sort массива при N = " + n + ": " + 0 + " МС.\n \n");
+
 
 
 
@@ -442,83 +567,131 @@ class Main {
 
             random_quick_time[counter] = (int)Functions.get_quick_time(sortArr);
 
-            System.out.print("Время выполнения алгоритма quick sort для рандомного массива при N = " + n + ": " + 0 + " МС.\n \n");
+
 
             Functions.array_sort(sortArr);
 
             sorted_quick_time[counter] = (int)Functions.get_quick_time(sortArr);
 
-            System.out.print("Время выполнения алгоритма quick sort для sort массива при N = " + n + ": " + 0 + " МС.\n \n");
+
 
             Functions.almost(sortArr);
 
             almost_sorted_quick_time[counter] = (int)Functions.get_quick_time(sortArr);
 
-            System.out.print("Время выполнения алгоритма quick sort для почти sort массива при N = " + n + ": " + 0 + " МС.\n \n");
+
 
             Functions.reverse_sort_array(sortArr);
 
             reverse_sorted_quick_time[counter] = (int)Functions.get_quick_time(sortArr);
 
-            System.out.print("Время выполнения алгоритма quick sort для reverse sort массива при N = " + n + ": " + 0 + " МС.\n \n");
+
 
 
             Functions.array_randomizer(sortArr);
 
             random_merge_time[counter] = (int)Functions.get_merge_time(sortArr);
 
-            System.out.print("Время выполнения алгоритма merge sort для рандомного массива при N = " + n + ": " + 0 + " МС.\n \n");
+
 
             Functions.array_sort(sortArr);
 
             sorted_merge_time[counter] = (int)Functions.get_merge_time(sortArr);
 
-            System.out.print("Время выполнения алгоритма merge sort для sort массива при N = " + n + ": " + 0 + " МС.\n \n");
+
 
             Functions.almost(sortArr);
 
             almost_sorted_merge_time[counter] = (int)Functions.get_merge_time(sortArr);
 
-            System.out.print("Время выполнения алгоритма merge sort для почти sort массива при N = " + n + ": " + 0 + " МС.\n \n");
 
+            
             Functions.reverse_sort_array(sortArr);
 
             reverse_sorted_merge_time[counter] = (int)Functions.get_merge_time(sortArr);
-
-            System.out.print("Время выполнения алгоритма merge sort для reverse sort массива при N = " + n + ": " + 0 + " МС.\n \n");
 
 
 
             Functions.array_randomizer(sortArr);
 
-            random_merge_time[counter] = (int)Functions.get_shell_time(sortArr);
+            random_shell_time[counter] = (int)Functions.get_shell_time(sortArr);
 
-            System.out.print("Время выполнения алгоритма shell sort для рандомного массива при N = " + n + ": " + 0 + " МС.\n \n");
 
             Functions.array_sort(sortArr);
 
             sorted_shell_time[counter] = (int)Functions.get_shell_time(sortArr);
 
-            System.out.print("Время выполнения алгоритма shell sort для sort массива при N = " + n + ": " + 0 + " МС.\n \n");
+
 
             Functions.almost(sortArr);
 
             almost_sorted_shell_time[counter] = (int)Functions.get_shell_time(sortArr);
 
-            System.out.print("Время выполнения алгоритма shell sort для почти sort массива при N = " + n + ": " + 0 + " МС.\n \n");
+
 
             Functions.reverse_sort_array(sortArr);
 
             reverse_sorted_shell_time[counter] = (int)Functions.get_shell_time(sortArr);
 
-            System.out.print("Время выполнения алгоритма shell sort для reverse sort массива при N = " + n + ": " + 0 + " МС.\n \n");
+
+
+            Functions.array_randomizer(sortArr);
+
+            random_heap_time[counter] = (int)Functions.get_heap_time(sortArr);
+
+            Functions.array_sort(sortArr);
+
+            sorted_heap_time[counter] = (int)Functions.get_heap_time(sortArr);
+
+            Functions.almost(sortArr);
+
+            almost_sorted_heap_time[counter] = (int)Functions.get_heap_time(sortArr);
+
+            Functions.reverse_sort_array(sortArr);
+
+            reverse_sorted_heap_time[counter] = (int)Functions.get_heap_time(sortArr);
+
+
+
+            Functions.array_randomizer(sortArr);
+
+            random_hibbard_time[counter] = (int)Functions.get_hibbard_time(sortArr);
+
+            Functions.array_sort(sortArr);
+
+            sorted_hibbard_time[counter] = (int)Functions.get_hibbard_time(sortArr);
+
+            Functions.almost(sortArr);
+
+            almost_sorted_hibbard_time[counter] = (int)Functions.get_hibbard_time(sortArr);
+
+            Functions.reverse_sort_array(sortArr);
+
+            reverse_sorted_hibbard_time[counter] = (int)Functions.get_hibbard_time(sortArr);
+
+
+
+            Functions.array_randomizer(sortArr);
+
+            random_pratt_time[counter] = (int)Functions.get_pratt_time(sortArr);
+
+            Functions.array_sort(sortArr);
+
+            sorted_pratt_time[counter] = (int)Functions.get_pratt_time(sortArr);
+
+            Functions.almost(sortArr);
+
+            almost_sorted_pratt_time[counter] = (int)Functions.get_pratt_time(sortArr);
+
+            Functions.reverse_sort_array(sortArr);
+
+            reverse_sorted_pratt_time[counter] = (int)Functions.get_pratt_time(sortArr);
+
 
             counter++;
 
         }
-
-
-
+        
         Functions.clearFile("//Users/aleksejevelkin/IdeaProjects/laba1/src/bubble.txt");
 
         Functions.writeStringToFile("Random array, bubble_sort:", "//Users/aleksejevelkin/IdeaProjects/laba1/src/bubble.txt");
@@ -613,6 +786,54 @@ class Main {
         Functions.writeStringToFile("Reverse-sorted array, shell_sort:", "//Users/aleksejevelkin/IdeaProjects/laba1/src/shell.txt");
         Functions.writeArrayToFile(reverse_sorted_shell_time, "//Users/aleksejevelkin/IdeaProjects/laba1/src/shell.txt");
 
+
+
+        Functions.clearFile("//Users/aleksejevelkin/IdeaProjects/laba1/src/heap.txt");
+
+        Functions.writeStringToFile("Random array, heap_sort:", "//Users/aleksejevelkin/IdeaProjects/laba1/src/heap.txt");
+        Functions.writeArrayToFile(random_heap_time, "//Users/aleksejevelkin/IdeaProjects/laba1/src/heap.txt");
+
+        Functions.writeStringToFile("Sorted array, heap_sort:", "//Users/aleksejevelkin/IdeaProjects/laba1/src/heap.txt");
+        Functions.writeArrayToFile(sorted_heap_time, "//Users/aleksejevelkin/IdeaProjects/laba1/src/heap.txt");
+
+        Functions.writeStringToFile("Almost sorted array, heap_sort:", "//Users/aleksejevelkin/IdeaProjects/laba1/src/heap.txt");
+        Functions.writeArrayToFile(almost_sorted_heap_time, "//Users/aleksejevelkin/IdeaProjects/laba1/src/heap.txt");
+
+        Functions.writeStringToFile("Reverse-sorted array, heap_sort:", "//Users/aleksejevelkin/IdeaProjects/laba1/src/heap.txt");
+        Functions.writeArrayToFile(reverse_sorted_heap_time, "//Users/aleksejevelkin/IdeaProjects/laba1/src/heap.txt");
+
+
+
+        Functions.clearFile("//Users/aleksejevelkin/IdeaProjects/laba1/src/hibbard.txt");
+
+        Functions.writeStringToFile("Random array, shell_sort(Hibbard sequence):", "//Users/aleksejevelkin/IdeaProjects/laba1/src/hibbard.txt");
+        Functions.writeArrayToFile(random_hibbard_time, "//Users/aleksejevelkin/IdeaProjects/laba1/src/hibbard .txt");
+
+        Functions.writeStringToFile("Sorted array, shell_sort(Hibbard sequence):", "//Users/aleksejevelkin/IdeaProjects/laba1/src/hibbard .txt");
+        Functions.writeArrayToFile(sorted_hibbard_time, "//Users/aleksejevelkin/IdeaProjects/laba1/src/hibbard .txt");
+
+        Functions.writeStringToFile("Almost sorted array, shell_sort(Hibbard sequence):", "//Users/aleksejevelkin/IdeaProjects/laba1/src/hibbard .txt");
+        Functions.writeArrayToFile(almost_sorted_hibbard_time, "//Users/aleksejevelkin/IdeaProjects/laba1/src/hibbard .txt");
+
+        Functions.writeStringToFile("Reverse-sorted array, shell_sort(Hibbard sequence):", "//Users/aleksejevelkin/IdeaProjects/laba1/src/hibbard .txt");
+        Functions.writeArrayToFile(reverse_sorted_hibbard_time, "//Users/aleksejevelkin/IdeaProjects/laba1/src/hibbard .txt");
+
+
+
+
+        Functions.clearFile("//Users/aleksejevelkin/IdeaProjects/laba1/src/pratt.txt");
+
+        Functions.writeStringToFile("Random array, shell_sort(Pratt sequence):", "//Users/aleksejevelkin/IdeaProjects/laba1/src/pratt.txt");
+        Functions.writeArrayToFile(random_pratt_time, "//Users/aleksejevelkin/IdeaProjects/laba1/src/pratt.txt");
+
+        Functions.writeStringToFile("Sorted array, shell_sort(Pratt sequence):", "//Users/aleksejevelkin/IdeaProjects/laba1/src/pratt.txt");
+        Functions.writeArrayToFile(sorted_pratt_time, "//Users/aleksejevelkin/IdeaProjects/laba1/src/pratt.txt");
+
+        Functions.writeStringToFile("Almost sorted array, shell_sort(Pratt sequence):", "//Users/aleksejevelkin/IdeaProjects/laba1/src/pratt.txt");
+        Functions.writeArrayToFile(almost_sorted_pratt_time, "//Users/aleksejevelkin/IdeaProjects/laba1/src/pratt.txt");
+
+        Functions.writeStringToFile("Reverse-sorted array, shell_sort(Pratt sequence):", "//Users/aleksejevelkin/IdeaProjects/laba1/src/pratt.txt");
+        Functions.writeArrayToFile(reverse_sorted_pratt_time, "//Users/aleksejevelkin/IdeaProjects/laba1/src/pratt.txt");
 
     }
 

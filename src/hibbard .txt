@@ -1,0 +1,7 @@
+0, 2, 3, 3, 4, 6, 7, 8, 9, 10, 12, 
+Sorted array, shell_sort(Hibbard sequence):
+0, 1, 0, 0, 0, 1, 1, 2, 1, 1, 1, 
+Almost sorted array, shell_sort(Hibbard sequence):
+0, 1, 2, 3, 4, 6, 6, 7, 9, 10, 11, 
+Reverse-sorted array, shell_sort(Hibbard sequence):
+0, 1, 0, 1, 1, 1, 2, 2, 2, 2, 2, 

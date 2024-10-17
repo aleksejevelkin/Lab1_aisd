@@ -1,8 +1,1 @@
-Random array, heap_sort:
-0, 2, 2, 3, 4, 5, 6, 7, 9, 10, 11, 
-Sorted array, heap_sort:
-1, 2, 1, 2, 2, 2, 2, 3, 4, 5, 5, 
-Almost sorted array, heap_sort:
-0, 2, 1, 2, 3, 4, 5, 6, 6, 7, 9, 
-Reverse-sorted array, heap_sort:
-0, 2, 1, 2, 2, 3, 3, 4, 4, 5, 5, 
+Random array, shell_sort(Hibbard sequence):

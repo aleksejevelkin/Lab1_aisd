@@ -1,8 +1,0 @@
-Random array, insertion_sort:
-0, 15, 18, 40, 73, 115, 166, 226, 320, 384, 465, 
-Sorted array, insertion_sort:
-0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 
-Almost sorted array, insertion_sort:
-0, 10, 19, 40, 72, 114, 163, 223, 314, 377, 464, 
-Reverse-sorted array, insertion_sort:
-0, 10, 36, 82, 148, 232, 327, 446, 627, 751, 930, 

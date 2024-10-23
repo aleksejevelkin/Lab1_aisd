@@ -3,8 +3,54 @@ import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.File;
+import java.util.ArrayList;
 
 class Sorts {
+
+    static class ShellSortPratt {
+
+        // Функция для генерации последовательности Пратта
+        private static int[] generatePrattSequence(int n) {
+            ArrayList<Integer> pratt = new ArrayList<>();
+            int i = 1, j = 1;
+
+            // Генерация шагов Пратта в пределах размера массива n
+            while (i <= n) {
+                j = i;
+                while (j <= n) {
+                    pratt.add(j);
+                    j *= 3;
+                }
+                i *= 2;
+            }
+
+            // Преобразуем список в массив и сортируем его по убыванию
+            int[] sequence = pratt.stream().mapToInt(x -> x).sorted().toArray();
+            return sequence;
+        }
+
+        public static void shellSortPratt(int[] array) {
+            int n = array.length;
+            int[] gaps = generatePrattSequence(n); // Получаем последовательность Пратта
+
+            // Основной цикл сортировки
+            for (int gap : gaps) {
+                for (int i = gap; i < n; i++) {
+                    int temp = array[i];
+                    int j = i;
+                    while (j >= gap && array[j - gap] > temp) {
+                        array[j] = array[j - gap];
+                        j -= gap;
+                    }
+                    array[j] = temp;
+                }
+            }
+        }
+
+    }
+
+
+
 
     static class HeapSort {
 
@@ -56,7 +102,7 @@ class Sorts {
         int n = array.length;
         int k = 1;
 
-        // Находим максимальное значение k для h_k < n
+         //Находим максимальное значение k для h_k < n
         while ((1 << k) - 1 < n) k++;
 
         for (int gap = (1 << (k - 1)) - 1; gap > 0; gap = (1 << --k) - 1) {
@@ -71,34 +117,6 @@ class Sorts {
         }
     }
 
-    public static void prattSort(int[] array) {
-        int n = array.length;
-        int[] gaps = new int[n]; // Массив для хранения интервалов
-        int gapCount = 0;
-
-        // Генерация интервалов по формуле d_i = 2^i * 3^j
-        for (int i = 0; (1 << i) <= n; i++) {
-            for (int j = 0; (1 << i) * (3 << j) <= n; j++) {
-                int gap = (1 << i) * (3 << j);
-                if (gap <= n) {
-                    gaps[gapCount++] = gap; // Сохраняем интервал
-                }
-            }
-        }
-
-        // Сортировка с использованием интервалов
-        for (int k = gapCount - 1; k >= 0; k--) { // Проходим по интервалам в обратном порядке
-            int gap = gaps[k];
-            for (int i = gap; i < n; i++) {
-                int temp = array[i];
-                int j;
-                for (j = i; j >= gap && array[j - gap] > temp; j -= gap) {
-                    array[j] = array[j - gap];
-                }
-                array[j] = temp;
-            }
-        }
-    }
 
     public static void shellSort(int[] array) {
 
@@ -166,31 +184,64 @@ class Sorts {
 
     }
 
-    public static void quickSort(int[] sortArr, int low, int high) {
+    public static class QuickSort {
 
-        if (sortArr.length == 0 || low >= high) return;
+        // Метод быстрой сортировки (Quick Sort) с медианой из трёх
+        public static void quickSort(int[] array, int left, int right) {
+            if (left < right) {
+               //  Выбираем опорный элемент с помощью медианы из трёх
+                int pivotIndex = medianOfThree(array, left, right);
+                int pivot = array[pivotIndex];
 
+               //  Разделяем массив на две части
+                int partitionIndex = partition(array, left, right, pivot);
 
-        int middle = low + (high - low) / 2;
-        int border = sortArr[middle];
-
-
-        int i = low, j = high;
-        while (i <= j) {
-            while (sortArr[i] < border) i++;
-            while (sortArr[j] > border) j--;
-            if (i <= j) {
-                int swap = sortArr[i];
-                sortArr[i] = sortArr[j];
-                sortArr[j] = swap;
-                i++;
-                j--;
+               //  Рекурсивно сортируем левую и правую части массива
+                quickSort(array, left, partitionIndex - 1);
+                quickSort(array, partitionIndex + 1, right);
             }
         }
 
+       //  Метод для разделения массива на две части
+        private static int partition(int[] array, int left, int right, int pivot) {
+            while (left <= right) {
+              //   Ищем элемент слева, который больше или равен pivot
+                while (array[left] < pivot) {
+                    left++;
+                }
+               //  Ищем элемент справа, который меньше или равен pivot
+                while (array[right] > pivot) {
+                    right--;
+                }
+              //   Если нашли пару элементов, которые нужно поменять местами
+                if (left <= right) {
+                    swap(array, left, right);  //Меняем местами
+                    left++;
+                    right--;
+                }
+            }
+            return left; // Возвращаем индекс разделения
+        }
 
-        if (low < j) quickSort(sortArr, low, j);
-        if (high > i) quickSort(sortArr, i, high);
+       //  Метод для выбора медианы из трёх элементов
+        private static int medianOfThree(int[] array, int left, int right) {
+            int mid = (left + right) / 2;
+
+            // Сравниваем и переставляем элементы так, чтобы array[left] <= array[mid] <= array[right]
+            if (array[left] > array[mid]) swap(array, left, mid);
+            if (array[left] > array[right]) swap(array, left, right);
+            if (array[mid] > array[right]) swap(array, mid, right);
+
+          //   Возвращаем индекс медианного элемента
+            return mid;
+        }
+
+      //   Метод для обмена элементов массива
+        private static void swap(int[] array, int i, int j) {
+            int temp = array[i];
+            array[i] = array[j];
+            array[j] = temp;
+        }
     }
 
     public static void selectionSort(int[] sortArr) {
@@ -200,7 +251,6 @@ class Sorts {
 
             for (int j = i + 1; j < sortArr.length; j++) {
                 if (sortArr[j] < min) {
-
                     pos = j;
                     min = sortArr[j];
                 }
@@ -218,7 +268,7 @@ class Sorts {
 
             int swap = sortArr[i];
             for (j = i; j > 0 && swap < sortArr[j - 1]; j--) {
-                //элементы отсортированного сегмента перемещаем вперёд, если они больше элемента для вставки
+               // элементы отсортированного сегмента перемещаем вперёд, если они больше элемента для вставки
                 sortArr[j] = sortArr[j - 1];
             }
             sortArr[j] = swap;
@@ -227,9 +277,9 @@ class Sorts {
 
     public static void bubbleSort3(int[] array) {
         int n = array.length; // Получаем длину массива
-        // Внешний цикл проходит по всему массиву
+       //  Внешний цикл проходит по всему массиву
         for (int i = 0; i < n - 1; i++) {
-            boolean swapped = false; // Переменная для отслеживания изменений в массиве
+            boolean swapped = false;  //Переменная для отслеживания изменений в массиве
             // Внутренний цикл сравнивает элементы попарно и меняет их местами, если они расположены в неправильном порядке
             for (int j = 0; j < n - 1 - i; j++) {
                 if (array[j] > array[j + 1]) {
@@ -237,7 +287,7 @@ class Sorts {
                     int temp = array[j];
                     array[j] = array[j + 1];
                     array[j + 1] = temp;
-                    swapped = true; // Отмечаем, что произошло изменение
+                    swapped = true;  //Отмечаем, что произошло изменение
                 }
             }
             // Если на текущей итерации не произошло обменов, массив уже отсортирован, выходим из цикла
@@ -255,14 +305,14 @@ class Functions{
 
         Functions.array_randomizer(array);
 
-        Sorts.quickSort(array, array.length/100*90, array.length-1);
+        Sorts.QuickSort.quickSort(array, array.length/100*90, array.length-1);
 
     }
 
     public static void clearFile(String filePath) {
         File file = new File(filePath);
         try (FileWriter writer = new FileWriter(file)) {
-            // Записываем пустую строку в файл
+           //  Записываем пустую строку в файл
             writer.write("");
             System.out.println("Файл успешно очищен: " + filePath);
         } catch (IOException e) {
@@ -281,13 +331,11 @@ class Functions{
 
     }
 
-
-
     public static void array_sort(int[] array){
         for(int i = 0; i<array.length; i++){
             array[i] = i;
         }
-        Sorts.quickSort(array, 0, array.length-1);
+        Sorts.QuickSort.quickSort(array, array.length/100*90, array.length-1);
     }
 
     public static void array_randomizer(int[] array){
@@ -323,7 +371,7 @@ class Functions{
 
     public static long get_quick_time(int[] array){
         long startTime = System.currentTimeMillis();
-        Sorts.quickSort(array, 0, array.length-1);
+        Sorts.QuickSort.quickSort(array, 0, array.length-1);
         long endTime = System.currentTimeMillis();
         return endTime - startTime;
     }
@@ -349,13 +397,13 @@ class Functions{
         return endTime - startTime;
     }
 
+
     public static long get_pratt_time(int[] array){
         long startTime = System.currentTimeMillis();
-        Sorts.prattSort(array);
+        Sorts.ShellSortPratt.shellSortPratt(array);
         long endTime = System.currentTimeMillis();
         return endTime - startTime;
     }
-
 
 
     public static long get_heap_time(int[] array){
@@ -388,33 +436,12 @@ class Functions{
         }
     }
 
-    public static void almost_sort_array(int[] array){
-
-        for(int i = 0; i<array.length; i++){
-            array[i] = i;
-        }
-
-        Functions.almost_sort(array);
-    }
-
-    public static void almost_sort(int[] sortArr){
-
-        for (int i = 0; i<sortArr.length-1; i = i + 20) {
-
-            int temp = sortArr[i];
-
-            sortArr[i] = sortArr[i + 10];
-            sortArr[i + 10] = temp;
-        }
-
-    }
-
     public static void reverse_sort(int[] sortArr){
 
         for (int i = 0; i < sortArr.length / 2; i++) {
-            // Сохраняем текущее значение
+           //  Сохраняем текущее значение
             int temp = sortArr[i];
-            // Меняем местами элементы
+        //     Меняем местами элементы
             sortArr[i] = sortArr[sortArr.length - 1 - i];
             sortArr[sortArr.length - 1 - i] = temp;
         }
@@ -422,7 +449,7 @@ class Functions{
     public static void shuffle(int[] array) {
         Random random = new Random();
         for (int i = array.length - 1; i > 0; i--) {
-            // Генерируем случайный индекс от 0 до i
+           //  Генерируем случайный индекс от 0 до i
             int j = random.nextInt(i + 1);
             // Меняем местами элементы array[i] и array[j]
             int temp = array[i];
@@ -453,15 +480,15 @@ class Main {
         int[] almost_sorted_selection_time = new int[11];
         int[] reverse_sorted_selection_time = new int[11];
 
-        int[] random_quick_time = new int[11];
-        int[] sorted_quick_time = new int[11];
-        int[] almost_sorted_quick_time = new int[11];
-        int[] reverse_sorted_quick_time = new int[11];
-
         int[] random_merge_time = new int[11];
         int[] sorted_merge_time = new int[11];
         int[] almost_sorted_merge_time = new int[11];
         int[] reverse_sorted_merge_time = new int[11];
+
+        int[] random_quick_time = new int[11];
+        int[] sorted_quick_time = new int[11];
+        int[] almost_sorted_quick_time = new int[11];
+        int[] reverse_sorted_quick_time = new int[11];
 
         int[] random_shell_time = new int[11];
         int[] sorted_shell_time = new int[11];
@@ -485,11 +512,12 @@ class Main {
 
 
 
+
         for (int n=0; n<100001; n = n + 10000){
 
             int[] sortArr = new int[n+1];
 
-            Functions.array_randomizer(sortArr); // рандомный массив
+            Functions.array_randomizer(sortArr);  //рандомный массив
             random_bubble_time[counter] = (int)Functions.get_bubble_time(sortArr);
 
 
@@ -563,30 +591,6 @@ class Main {
 
 
 
-            Functions.array_randomizer(sortArr);
-
-            random_quick_time[counter] = (int)Functions.get_quick_time(sortArr);
-
-
-
-            Functions.array_sort(sortArr);
-
-            sorted_quick_time[counter] = (int)Functions.get_quick_time(sortArr);
-
-
-
-            Functions.almost(sortArr);
-
-            almost_sorted_quick_time[counter] = (int)Functions.get_quick_time(sortArr);
-
-
-
-            Functions.reverse_sort_array(sortArr);
-
-            reverse_sorted_quick_time[counter] = (int)Functions.get_quick_time(sortArr);
-
-
-
 
             Functions.array_randomizer(sortArr);
 
@@ -605,10 +609,36 @@ class Main {
             almost_sorted_merge_time[counter] = (int)Functions.get_merge_time(sortArr);
 
 
-            
+
             Functions.reverse_sort_array(sortArr);
 
             reverse_sorted_merge_time[counter] = (int)Functions.get_merge_time(sortArr);
+
+
+        Functions.array_randomizer(sortArr);
+
+        random_quick_time[counter] = (int)Functions.get_quick_time(sortArr);
+
+
+
+        Functions.array_sort(sortArr);
+
+        sorted_quick_time[counter] = (int)Functions.get_quick_time(sortArr);
+
+
+
+        Functions.almost(sortArr);
+
+        almost_sorted_quick_time[counter] = (int)Functions.get_quick_time(sortArr);
+
+
+
+        Functions.reverse_sort_array(sortArr);
+
+        reverse_sorted_quick_time[counter] = (int)Functions.get_quick_time(sortArr);
+
+
+
 
 
 
@@ -691,149 +721,145 @@ class Main {
             counter++;
 
         }
-        
+
         Functions.clearFile("//Users/aleksejevelkin/IdeaProjects/laba1/src/bubble.txt");
+        
+        Functions.writeStringToFile("Random array, bubble_sort:", "/Users/aleksejevelkin/IdeaProjects/laba1/src/bubble.txt");
+        Functions.writeArrayToFile(random_bubble_time, "/Users/aleksejevelkin/IdeaProjects/laba1/src/bubble.txt");
 
-        Functions.writeStringToFile("Random array, bubble_sort:", "//Users/aleksejevelkin/IdeaProjects/laba1/src/bubble.txt");
-        Functions.writeArrayToFile(random_bubble_time, "//Users/aleksejevelkin/IdeaProjects/laba1/src/bubble.txt");
+        Functions.writeStringToFile("Sorted array, bubble_sort:", "/Users/aleksejevelkin/IdeaProjects/laba1/src/bubble.txt");
+        Functions.writeArrayToFile(sorted_bubble_time, "/Users/aleksejevelkin/IdeaProjects/laba1/src/bubble.txt");
 
-        Functions.writeStringToFile("Sorted array, bubble_sort:", "//Users/aleksejevelkin/IdeaProjects/laba1/src/bubble.txt");
-        Functions.writeArrayToFile(sorted_bubble_time, "//Users/aleksejevelkin/IdeaProjects/laba1/src/bubble.txt");
+        Functions.writeStringToFile("Almost sorted array, bubble_sort:", "/Users/aleksejevelkin/IdeaProjects/laba1/src/bubble.txt");
+        Functions.writeArrayToFile(almost_sorted_bubble_time, "/Users/aleksejevelkin/IdeaProjects/laba1/src/bubble.txt");
 
-        Functions.writeStringToFile("Almost sorted array, bubble_sort:", "//Users/aleksejevelkin/IdeaProjects/laba1/src/bubble.txt");
-        Functions.writeArrayToFile(almost_sorted_bubble_time, "//Users/aleksejevelkin/IdeaProjects/laba1/src/bubble.txt");
-
-        Functions.writeStringToFile("Reverse-sorted array, bubble_sort:", "//Users/aleksejevelkin/IdeaProjects/laba1/src/bubble.txt");
-        Functions.writeArrayToFile(reverse_sorted_bubble_time, "//Users/aleksejevelkin/IdeaProjects/laba1/src/bubble.txt");
-
-
-
-        Functions.clearFile("//Users/aleksejevelkin/IdeaProjects/laba1/src/insertion.txt");
-
-        Functions.writeStringToFile("Random array, insertion_sort:", "//Users/aleksejevelkin/IdeaProjects/laba1/src/insertion.txt");
-        Functions.writeArrayToFile(random_insertion_time, "//Users/aleksejevelkin/IdeaProjects/laba1/src/insertion.txt");
-
-        Functions.writeStringToFile("Sorted array, insertion_sort:", "//Users/aleksejevelkin/IdeaProjects/laba1/src/insertion.txt");
-        Functions.writeArrayToFile(sorted_insertion_time, "//Users/aleksejevelkin/IdeaProjects/laba1/src/insertion.txt");
-
-        Functions.writeStringToFile("Almost sorted array, insertion_sort:", "//Users/aleksejevelkin/IdeaProjects/laba1/src/insertion.txt");
-        Functions.writeArrayToFile(almost_sorted_insertion_time, "//Users/aleksejevelkin/IdeaProjects/laba1/src/insertion.txt");
-
-        Functions.writeStringToFile("Reverse-sorted array, insertion_sort:", "//Users/aleksejevelkin/IdeaProjects/laba1/src/insertion.txt");
-        Functions.writeArrayToFile(reverse_sorted_insertion_time, "//Users/aleksejevelkin/IdeaProjects/laba1/src/insertion.txt");
+        Functions.writeStringToFile("Reverse-sorted array, bubble_sort:", "/Users/aleksejevelkin/IdeaProjects/laba1/src/bubble.txt");
+        Functions.writeArrayToFile(reverse_sorted_bubble_time, "/Users/aleksejevelkin/IdeaProjects/laba1/src/bubble.txt");
 
 
 
-        Functions.clearFile("//Users/aleksejevelkin/IdeaProjects/laba1/src/selection.txt");
+        Functions.clearFile("/Users/aleksejevelkin/IdeaProjects/laba1/src/insertion.txt");
 
-        Functions.writeStringToFile("Random array, selection_sort:", "//Users/aleksejevelkin/IdeaProjects/laba1/src/selection.txt");
-        Functions.writeArrayToFile(random_selection_time, "//Users/aleksejevelkin/IdeaProjects/laba1/src/selection.txt");
+        Functions.writeStringToFile("Random array, insertion_sort:", "/Users/aleksejevelkin/IdeaProjects/laba1/src/insertion.txt");
+        Functions.writeArrayToFile(random_insertion_time, "/Users/aleksejevelkin/IdeaProjects/laba1/src/insertion.txt");
 
-        Functions.writeStringToFile("Sorted array, selection_sort:", "//Users/aleksejevelkin/IdeaProjects/laba1/src/selection.txt");
-        Functions.writeArrayToFile(sorted_selection_time, "//Users/aleksejevelkin/IdeaProjects/laba1/src/selection.txt");
+        Functions.writeStringToFile("Sorted array, insertion_sort:", "/Users/aleksejevelkin/IdeaProjects/laba1/src/insertion.txt");
+        Functions.writeArrayToFile(sorted_insertion_time, "/Users/aleksejevelkin/IdeaProjects/laba1/src/insertion.txt");
 
-        Functions.writeStringToFile("Almost sorted array, selection_sort:", "//Users/aleksejevelkin/IdeaProjects/laba1/src/selection.txt");
-        Functions.writeArrayToFile(almost_sorted_selection_time, "//Users/aleksejevelkin/IdeaProjects/laba1/src/selection.txt");
+        Functions.writeStringToFile("Almost sorted array, insertion_sort:", "/Users/aleksejevelkin/IdeaProjects/laba1/src/insertion.txt");
+        Functions.writeArrayToFile(almost_sorted_insertion_time, "/Users/aleksejevelkin/IdeaProjects/laba1/src/insertion.txt");
 
-        Functions.writeStringToFile("Reverse-sorted array, selection_sort:", "//Users/aleksejevelkin/IdeaProjects/laba1/src/selection.txt");
-        Functions.writeArrayToFile(reverse_sorted_selection_time, "//Users/aleksejevelkin/IdeaProjects/laba1/src/selection.txt");
-
-
-
-        Functions.clearFile("//Users/aleksejevelkin/IdeaProjects/laba1/src/quick.txt");
-
-        Functions.writeStringToFile("Random array, quick_sort:", "//Users/aleksejevelkin/IdeaProjects/laba1/src/quick.txt");
-        Functions.writeArrayToFile(random_quick_time, "//Users/aleksejevelkin/IdeaProjects/laba1/src/quick.txt");
-
-        Functions.writeStringToFile("Sorted array, quick_sort:", "//Users/aleksejevelkin/IdeaProjects/laba1/src/quick.txt");
-        Functions.writeArrayToFile(sorted_quick_time, "//Users/aleksejevelkin/IdeaProjects/laba1/src/quick.txt");
-
-        Functions.writeStringToFile("Almost sorted array, quick_sort:", "//Users/aleksejevelkin/IdeaProjects/laba1/src/quick.txt");
-        Functions.writeArrayToFile(almost_sorted_quick_time, "//Users/aleksejevelkin/IdeaProjects/laba1/src/quick.txt");
-
-        Functions.writeStringToFile("Reverse-sorted array, quick_sort:", "//Users/aleksejevelkin/IdeaProjects/laba1/src/quick.txt");
-        Functions.writeArrayToFile(reverse_sorted_quick_time, "//Users/aleksejevelkin/IdeaProjects/laba1/src/quick.txt");
+        Functions.writeStringToFile("Reverse-sorted array, insertion_sort:", "/Users/aleksejevelkin/IdeaProjects/laba1/src/insertion.txt");
+        Functions.writeArrayToFile(reverse_sorted_insertion_time, "/Users/aleksejevelkin/IdeaProjects/laba1/src/insertion.txt");
 
 
 
-        Functions.clearFile("//Users/aleksejevelkin/IdeaProjects/laba1/src/merge.txt");
+        Functions.clearFile("/Users/aleksejevelkin/IdeaProjects/laba1/src/selection.txt");
 
-        Functions.writeStringToFile("Random array, merge_sort:", "//Users/aleksejevelkin/IdeaProjects/laba1/src/merge.txt");
-        Functions.writeArrayToFile(random_merge_time, "//Users/aleksejevelkin/IdeaProjects/laba1/src/merge.txt");
+        Functions.writeStringToFile("Random array, selection_sort:", "/Users/aleksejevelkin/IdeaProjects/laba1/src/selection.txt");
+        Functions.writeArrayToFile(random_selection_time, "/Users/aleksejevelkin/IdeaProjects/laba1/src/selection.txt");
 
-        Functions.writeStringToFile("Sorted array, merge_sort:", "//Users/aleksejevelkin/IdeaProjects/laba1/src/merge.txt");
-        Functions.writeArrayToFile(sorted_merge_time, "//Users/aleksejevelkin/IdeaProjects/laba1/src/merge.txt");
+        Functions.writeStringToFile("Sorted array, selection_sort:", "/Users/aleksejevelkin/IdeaProjects/laba1/src/selection.txt");
+        Functions.writeArrayToFile(sorted_selection_time, "/Users/aleksejevelkin/IdeaProjects/laba1/src/selection.txt");
 
-        Functions.writeStringToFile("Almost sorted array, merge_sort:", "//Users/aleksejevelkin/IdeaProjects/laba1/src/merge.txt");
-        Functions.writeArrayToFile(almost_sorted_merge_time, "//Users/aleksejevelkin/IdeaProjects/laba1/src/merge.txt");
+        Functions.writeStringToFile("Almost sorted array, selection_sort:", "/Users/aleksejevelkin/IdeaProjects/laba1/src/selection.txt");
+        Functions.writeArrayToFile(almost_sorted_selection_time, "/Users/aleksejevelkin/IdeaProjects/laba1/src/selection.txt");
 
-        Functions.writeStringToFile("Reverse-sorted array, merge_sort:", "//Users/aleksejevelkin/IdeaProjects/laba1/src/merge.txt");
-        Functions.writeArrayToFile(reverse_sorted_merge_time, "//Users/aleksejevelkin/IdeaProjects/laba1/src/merge.txt");
-
-
-
-        Functions.clearFile("//Users/aleksejevelkin/IdeaProjects/laba1/src/shell.txt");
-
-        Functions.writeStringToFile("Random array, shell_sort:", "//Users/aleksejevelkin/IdeaProjects/laba1/src/shell.txt");
-        Functions.writeArrayToFile(random_shell_time, "//Users/aleksejevelkin/IdeaProjects/laba1/src/shell.txt");
-
-        Functions.writeStringToFile("Sorted array, shell_sort:", "//Users/aleksejevelkin/IdeaProjects/laba1/src/shell.txt");
-        Functions.writeArrayToFile(sorted_shell_time, "//Users/aleksejevelkin/IdeaProjects/laba1/src/shell.txt");
-
-        Functions.writeStringToFile("Almost sorted array, shell_sort:", "//Users/aleksejevelkin/IdeaProjects/laba1/src/shell.txt");
-        Functions.writeArrayToFile(almost_sorted_shell_time, "//Users/aleksejevelkin/IdeaProjects/laba1/src/shell.txt");
-
-        Functions.writeStringToFile("Reverse-sorted array, shell_sort:", "//Users/aleksejevelkin/IdeaProjects/laba1/src/shell.txt");
-        Functions.writeArrayToFile(reverse_sorted_shell_time, "//Users/aleksejevelkin/IdeaProjects/laba1/src/shell.txt");
+        Functions.writeStringToFile("Reverse-sorted array, selection_sort:", "/Users/aleksejevelkin/IdeaProjects/laba1/src/selection.txt");
+        Functions.writeArrayToFile(reverse_sorted_selection_time, "/Users/aleksejevelkin/IdeaProjects/laba1/src/selection.txt");
 
 
 
-        Functions.clearFile("//Users/aleksejevelkin/IdeaProjects/laba1/src/heap.txt");
+        Functions.clearFile("/Users/aleksejevelkin/IdeaProjects/laba1/src/merge.txt");
 
-        Functions.writeStringToFile("Random array, heap_sort:", "//Users/aleksejevelkin/IdeaProjects/laba1/src/heap.txt");
-        Functions.writeArrayToFile(random_heap_time, "//Users/aleksejevelkin/IdeaProjects/laba1/src/heap.txt");
+        Functions.writeStringToFile("Random array, merge_sort:", "/Users/aleksejevelkin/IdeaProjects/laba1/src/merge.txt");
+        Functions.writeArrayToFile(random_merge_time, "/Users/aleksejevelkin/IdeaProjects/laba1/src/merge.txt");
 
-        Functions.writeStringToFile("Sorted array, heap_sort:", "//Users/aleksejevelkin/IdeaProjects/laba1/src/heap.txt");
-        Functions.writeArrayToFile(sorted_heap_time, "//Users/aleksejevelkin/IdeaProjects/laba1/src/heap.txt");
+        Functions.writeStringToFile("Sorted array, merge_sort:", "/Users/aleksejevelkin/IdeaProjects/laba1/src/merge.txt");
+        Functions.writeArrayToFile(sorted_merge_time, "/Users/aleksejevelkin/IdeaProjects/laba1/src/merge.txt");
 
-        Functions.writeStringToFile("Almost sorted array, heap_sort:", "//Users/aleksejevelkin/IdeaProjects/laba1/src/heap.txt");
-        Functions.writeArrayToFile(almost_sorted_heap_time, "//Users/aleksejevelkin/IdeaProjects/laba1/src/heap.txt");
+        Functions.writeStringToFile("Almost sorted array, merge_sort:", "/Users/aleksejevelkin/IdeaProjects/laba1/src/merge.txt");
+        Functions.writeArrayToFile(almost_sorted_merge_time, "/Users/aleksejevelkin/IdeaProjects/laba1/src/merge.txt");
 
-        Functions.writeStringToFile("Reverse-sorted array, heap_sort:", "//Users/aleksejevelkin/IdeaProjects/laba1/src/heap.txt");
-        Functions.writeArrayToFile(reverse_sorted_heap_time, "//Users/aleksejevelkin/IdeaProjects/laba1/src/heap.txt");
+        Functions.writeStringToFile("Reverse-sorted array, merge_sort:", "/Users/aleksejevelkin/IdeaProjects/laba1/src/merge.txt");
+        Functions.writeArrayToFile(reverse_sorted_merge_time, "/Users/aleksejevelkin/IdeaProjects/laba1/src/merge.txt");
+
+        Functions.clearFile("/Users/aleksejevelkin/IdeaProjects/laba1/src/quick.txt");
+
+        Functions.writeStringToFile("Random array, quick_sort:", "/Users/aleksejevelkin/IdeaProjects/laba1/src/quick.txt");
+        Functions.writeArrayToFile(random_quick_time, "/Users/aleksejevelkin/IdeaProjects/laba1/src/quick.txt");
+
+        Functions.writeStringToFile("Sorted array, quick_sort:", "/Users/aleksejevelkin/IdeaProjects/laba1/src/quick.txt");
+        Functions.writeArrayToFile(sorted_quick_time, "/Users/aleksejevelkin/IdeaProjects/laba1/src/quick.txt");
+
+        Functions.writeStringToFile("Almost sorted array, quick_sort:", "/Users/aleksejevelkin/IdeaProjects/laba1/src/quick.txt");
+        Functions.writeArrayToFile(almost_sorted_quick_time, "/Users/aleksejevelkin/IdeaProjects/laba1/src/quick.txt");
+
+        Functions.writeStringToFile("Reverse-sorted array, quick_sort:", "/Users/aleksejevelkin/IdeaProjects/laba1/src/quick.txt");
+        Functions.writeArrayToFile(reverse_sorted_quick_time, "/Users/aleksejevelkin/IdeaProjects/laba1/src/quick.txt");
+
+        Functions.clearFile("/Users/aleksejevelkin/IdeaProjects/laba1/src/shell.txt");
+
+        Functions.writeStringToFile("Random array, shell_sort:", "/Users/aleksejevelkin/IdeaProjects/laba1/src/shell.txt");
+        Functions.writeArrayToFile(random_shell_time, "/Users/aleksejevelkin/IdeaProjects/laba1/src/shell.txt");
+
+        Functions.writeStringToFile("Sorted array, shell_sort:", "/Users/aleksejevelkin/IdeaProjects/laba1/src/shell.txt");
+        Functions.writeArrayToFile(sorted_shell_time, "/Users/aleksejevelkin/IdeaProjects/laba1/src/shell.txt");
+
+        Functions.writeStringToFile("Almost sorted array, shell_sort:", "/Users/aleksejevelkin/IdeaProjects/laba1/src/shell.txt");
+        Functions.writeArrayToFile(almost_sorted_shell_time, "/Users/aleksejevelkin/IdeaProjects/laba1/src/shell.txt");
+
+        Functions.writeStringToFile("Reverse-sorted array, shell_sort:", "/Users/aleksejevelkin/IdeaProjects/laba1/src/shell.txt");
+        Functions.writeArrayToFile(reverse_sorted_shell_time, "/Users/aleksejevelkin/IdeaProjects/laba1/src/shell.txt");
 
 
 
-        Functions.clearFile("//Users/aleksejevelkin/IdeaProjects/laba1/src/hibbard.txt");
+        Functions.clearFile("/Users/aleksejevelkin/IdeaProjects/laba1/src/heap.txt");
 
-        Functions.writeStringToFile("Random array, shell_sort(Hibbard sequence):", "//Users/aleksejevelkin/IdeaProjects/laba1/src/hibbard.txt");
-        Functions.writeArrayToFile(random_hibbard_time, "//Users/aleksejevelkin/IdeaProjects/laba1/src/hibbard .txt");
+        Functions.writeStringToFile("Random array, heap_sort:", "/Users/aleksejevelkin/IdeaProjects/laba1/src/heap.txt");
+        Functions.writeArrayToFile(random_heap_time, "/Users/aleksejevelkin/IdeaProjects/laba1/src/heap.txt");
 
-        Functions.writeStringToFile("Sorted array, shell_sort(Hibbard sequence):", "//Users/aleksejevelkin/IdeaProjects/laba1/src/hibbard .txt");
-        Functions.writeArrayToFile(sorted_hibbard_time, "//Users/aleksejevelkin/IdeaProjects/laba1/src/hibbard .txt");
+        Functions.writeStringToFile("Sorted array, heap_sort:", "/Users/aleksejevelkin/IdeaProjects/laba1/src/heap.txt");
+        Functions.writeArrayToFile(sorted_heap_time, "/Users/aleksejevelkin/IdeaProjects/laba1/src/heap.txt");
 
-        Functions.writeStringToFile("Almost sorted array, shell_sort(Hibbard sequence):", "//Users/aleksejevelkin/IdeaProjects/laba1/src/hibbard .txt");
-        Functions.writeArrayToFile(almost_sorted_hibbard_time, "//Users/aleksejevelkin/IdeaProjects/laba1/src/hibbard .txt");
+        Functions.writeStringToFile("Almost sorted array, heap_sort:", "/Users/aleksejevelkin/IdeaProjects/laba1/src/heap.txt");
+        Functions.writeArrayToFile(almost_sorted_heap_time, "/Users/aleksejevelkin/IdeaProjects/laba1/src/heap.txt");
 
-        Functions.writeStringToFile("Reverse-sorted array, shell_sort(Hibbard sequence):", "//Users/aleksejevelkin/IdeaProjects/laba1/src/hibbard .txt");
-        Functions.writeArrayToFile(reverse_sorted_hibbard_time, "//Users/aleksejevelkin/IdeaProjects/laba1/src/hibbard .txt");
+        Functions.writeStringToFile("Reverse-sorted array, heap_sort:", "/Users/aleksejevelkin/IdeaProjects/laba1/src/heap.txt");
+        Functions.writeArrayToFile(reverse_sorted_heap_time, "/Users/aleksejevelkin/IdeaProjects/laba1/src/heap.txt");
+
+
+
+        Functions.clearFile("/Users/aleksejevelkin/IdeaProjects/laba1/src/hibbard.txt");
+
+        Functions.writeStringToFile("Random array, shell_sort(Hibbard sequence):", "/Users/aleksejevelkin/IdeaProjects/laba1/src/hibbard.txt");
+        Functions.writeArrayToFile(random_hibbard_time, "/Users/aleksejevelkin/IdeaProjects/laba1/src/hibbard.txt");
+
+        Functions.writeStringToFile("Sorted array, shell_sort(Hibbard sequence):", "/Users/aleksejevelkin/IdeaProjects/laba1/src/hibbard.txt");
+        Functions.writeArrayToFile(sorted_hibbard_time, "/Users/aleksejevelkin/IdeaProjects/laba1/src/hibbard.txt");
+
+        Functions.writeStringToFile("Almost sorted array, shell_sort(Hibbard sequence):", "/Users/aleksejevelkin/IdeaProjects/laba1/src/hibbard.txt");
+        Functions.writeArrayToFile(almost_sorted_hibbard_time, "/Users/aleksejevelkin/IdeaProjects/laba1/src/hibbard.txt");
+
+        Functions.writeStringToFile("Reverse-sorted array, shell_sort(Hibbard sequence):", "/Users/aleksejevelkin/IdeaProjects/laba1/src/hibbard.txt");
+        Functions.writeArrayToFile(reverse_sorted_hibbard_time, "/Users/aleksejevelkin/IdeaProjects/laba1/src/hibbard.txt");
 
 
 
 
-        Functions.clearFile("//Users/aleksejevelkin/IdeaProjects/laba1/src/pratt.txt");
+        Functions.clearFile("/Users/aleksejevelkin/IdeaProjects/laba1/src/pratt.txt");
 
-        Functions.writeStringToFile("Random array, shell_sort(Pratt sequence):", "//Users/aleksejevelkin/IdeaProjects/laba1/src/pratt.txt");
-        Functions.writeArrayToFile(random_pratt_time, "//Users/aleksejevelkin/IdeaProjects/laba1/src/pratt.txt");
+        Functions.writeStringToFile("Random array, shell_sort(Pratt sequence):", "/Users/aleksejevelkin/IdeaProjects/laba1/src/pratt.txt");
+        Functions.writeArrayToFile(random_pratt_time, "/Users/aleksejevelkin/IdeaProjects/laba1/src/pratt.txt");
 
-        Functions.writeStringToFile("Sorted array, shell_sort(Pratt sequence):", "//Users/aleksejevelkin/IdeaProjects/laba1/src/pratt.txt");
-        Functions.writeArrayToFile(sorted_pratt_time, "//Users/aleksejevelkin/IdeaProjects/laba1/src/pratt.txt");
+        Functions.writeStringToFile("Sorted array, shell_sort(Pratt sequence):", "/Users/aleksejevelkin/IdeaProjects/laba1/src/pratt.txt");
+        Functions.writeArrayToFile(sorted_pratt_time, "/Users/aleksejevelkin/IdeaProjects/laba1/src/pratt.txt");
 
-        Functions.writeStringToFile("Almost sorted array, shell_sort(Pratt sequence):", "//Users/aleksejevelkin/IdeaProjects/laba1/src/pratt.txt");
-        Functions.writeArrayToFile(almost_sorted_pratt_time, "//Users/aleksejevelkin/IdeaProjects/laba1/src/pratt.txt");
+        Functions.writeStringToFile("Almost sorted array, shell_sort(Pratt sequence):", "/Users/aleksejevelkin/IdeaProjects/laba1/src/pratt.txt");
+        Functions.writeArrayToFile(almost_sorted_pratt_time, "/Users/aleksejevelkin/IdeaProjects/laba1/src/pratt.txt");
 
-        Functions.writeStringToFile("Reverse-sorted array, shell_sort(Pratt sequence):", "//Users/aleksejevelkin/IdeaProjects/laba1/src/pratt.txt");
-        Functions.writeArrayToFile(reverse_sorted_pratt_time, "//Users/aleksejevelkin/IdeaProjects/laba1/src/pratt.txt");
+        Functions.writeStringToFile("Reverse-sorted array, shell_sort(Pratt sequence):", "/Users/aleksejevelkin/IdeaProjects/laba1/src/pratt.txt");
+        Functions.writeArrayToFile(reverse_sorted_pratt_time, "/Users/aleksejevelkin/IdeaProjects/laba1/src/pratt.txt");
 
     }
 

@@ -31,8 +31,12 @@ class Sorts {
 
         public static void shellSortPratt(int[] array) {
             int n = array.length;
+            long startTime = System.currentTimeMillis();
             int[] gaps = generatePrattSequence(n); // Получаем последовательность Пратта
+            long endTime = System.currentTimeMillis();
+            long time = endTime - startTime;
 
+            System.out.println(time+'\n');
             // Основной цикл сортировки
             for (int gap : gaps) {
                 for (int i = gap; i < n; i++) {
@@ -184,65 +188,45 @@ class Sorts {
 
     }
 
-    public static class QuickSort {
+    public static void quickSort(int[] arr, int low, int high) {
+        if (arr == null || arr.length == 0)
+            return;
 
-        // Метод быстрой сортировки (Quick Sort) с медианой из трёх
-        public static void quickSort(int[] array, int left, int right) {
-            if (left < right) {
-               //  Выбираем опорный элемент с помощью медианы из трёх
-                int pivotIndex = medianOfThree(array, left, right);
-                int pivot = array[pivotIndex];
+        if (low >= high)
+            return;
 
-               //  Разделяем массив на две части
-                int partitionIndex = partition(array, left, right, pivot);
+        // выбираем опорный элемент
+        int middle = low + (high - low) / 2;
+        int pivot = arr[middle];
 
-               //  Рекурсивно сортируем левую и правую части массива
-                quickSort(array, left, partitionIndex - 1);
-                quickSort(array, partitionIndex + 1, right);
+        //делаем left < pivot и right > pivot
+        int i = low, j = high;
+        while (i <= j) {
+            while (arr[i] < pivot) {
+                i++;
+            }
+
+            while (arr[j] > pivot) {
+                j--;
+            }
+
+            if (i <= j) {
+                int temp = arr[i];
+                arr[i] = arr[j];
+                arr[j] = temp;
+                i++;
+                j--;
             }
         }
 
-       //  Метод для разделения массива на две части
-        private static int partition(int[] array, int left, int right, int pivot) {
-            while (left <= right) {
-              //   Ищем элемент слева, который больше или равен pivot
-                while (array[left] < pivot) {
-                    left++;
-                }
-               //  Ищем элемент справа, который меньше или равен pivot
-                while (array[right] > pivot) {
-                    right--;
-                }
-              //   Если нашли пару элементов, которые нужно поменять местами
-                if (left <= right) {
-                    swap(array, left, right);  //Меняем местами
-                    left++;
-                    right--;
-                }
-            }
-            return left; // Возвращаем индекс разделения
-        }
+        // рекурсивно сортируем обе части
+        if (low < j)
+            quickSort(arr, low, j);
 
-       //  Метод для выбора медианы из трёх элементов
-        private static int medianOfThree(int[] array, int left, int right) {
-            int mid = (left + right) / 2;
-
-            // Сравниваем и переставляем элементы так, чтобы array[left] <= array[mid] <= array[right]
-            if (array[left] > array[mid]) swap(array, left, mid);
-            if (array[left] > array[right]) swap(array, left, right);
-            if (array[mid] > array[right]) swap(array, mid, right);
-
-          //   Возвращаем индекс медианного элемента
-            return mid;
-        }
-
-      //   Метод для обмена элементов массива
-        private static void swap(int[] array, int i, int j) {
-            int temp = array[i];
-            array[i] = array[j];
-            array[j] = temp;
-        }
+        if (high > i)
+            quickSort(arr, i, high);
     }
+
 
     public static void selectionSort(int[] sortArr) {
         for (int i = 0; i < sortArr.length; i++) {
@@ -301,11 +285,12 @@ class Sorts {
 
 class Functions{
 
+
     public static void almost(int[] array){
 
         Functions.array_randomizer(array);
 
-        Sorts.QuickSort.quickSort(array, array.length/100*90, array.length-1);
+        Sorts.quickSort(array, 0, array.length/100*90);
 
     }
 
@@ -335,7 +320,7 @@ class Functions{
         for(int i = 0; i<array.length; i++){
             array[i] = i;
         }
-        Sorts.QuickSort.quickSort(array, array.length/100*90, array.length-1);
+        Sorts.quickSort(array, 0, array.length-1);
     }
 
     public static void array_randomizer(int[] array){
@@ -352,6 +337,7 @@ class Functions{
         long startTime = System.currentTimeMillis();
         Sorts.bubbleSort3(array);
         long endTime = System.currentTimeMillis();
+
         return endTime - startTime;
     }
 
@@ -371,7 +357,7 @@ class Functions{
 
     public static long get_quick_time(int[] array){
         long startTime = System.currentTimeMillis();
-        Sorts.QuickSort.quickSort(array, 0, array.length-1);
+        Sorts.quickSort(array, 0, array.length-1);
         long endTime = System.currentTimeMillis();
         return endTime - startTime;
     }
@@ -513,13 +499,13 @@ class Main {
 
 
 
-        for (int n=0; n<100001; n = n + 10000){
+        for (int n=0; n<100001; n = n + 10000) {
 
-            int[] sortArr = new int[n+1];
+            int[] sortArr = new int[n + 1];
 
             Functions.array_randomizer(sortArr);  //рандомный массив
             random_bubble_time[counter] = (int)Functions.get_bubble_time(sortArr);
-
+            
 
             Functions.array_sort(sortArr);
 
@@ -528,194 +514,167 @@ class Main {
 
             Functions.almost(sortArr);
 
-            almost_sorted_bubble_time[counter] = (int)Functions.get_bubble_time(sortArr);
+            almost_sorted_bubble_time[counter] = (int) Functions.get_bubble_time(sortArr);
 
 
             Functions.reverse_sort_array(sortArr);
 
-            reverse_sorted_bubble_time[counter] = (int)Functions.get_bubble_time(sortArr);
+            reverse_sorted_bubble_time[counter] = (int) Functions.get_bubble_time(sortArr);
+
+
+            Functions.array_randomizer(sortArr);
+
+            random_insertion_time[counter] = (int) Functions.get_insertion_time(sortArr);
+            
+
+            Functions.array_sort(sortArr);
+
+            sorted_insertion_time[counter] = (int) Functions.get_insertion_time(sortArr);
+
+
+            Functions.almost(sortArr);
+
+            almost_sorted_insertion_time[counter] = (int) Functions.get_insertion_time(sortArr);
+
+
+            Functions.reverse_sort_array(sortArr);
+
+            reverse_sorted_insertion_time[counter] = (int) Functions.get_insertion_time(sortArr);
+
+
+            Functions.array_randomizer(sortArr);
+
+            random_selection_time[counter] = (int) Functions.get_selection_time(sortArr);
+            
+
+            Functions.array_sort(sortArr);
+
+            sorted_selection_time[counter] = (int) Functions.get_selection_time(sortArr);
+
+
+            Functions.almost(sortArr);
+
+            almost_sorted_selection_time[counter] = (int) Functions.get_selection_time(sortArr);
+
+
+            Functions.reverse_sort_array(sortArr);
+
+            reverse_sorted_selection_time[counter] = (int) Functions.get_selection_time(sortArr);
+
+
+            Functions.array_randomizer(sortArr);
+
+            random_merge_time[counter] = (int) Functions.get_merge_time(sortArr);
+            
+
+            Functions.array_sort(sortArr);
+
+            sorted_merge_time[counter] = (int) Functions.get_merge_time(sortArr);
+
+
+            Functions.almost(sortArr);
+
+            almost_sorted_merge_time[counter] = (int) Functions.get_merge_time(sortArr);
+
+
+            Functions.reverse_sort_array(sortArr);
+
+            reverse_sorted_merge_time[counter] = (int) Functions.get_merge_time(sortArr);
 
 
 
             Functions.array_randomizer(sortArr);
 
-            random_insertion_time[counter] = (int)Functions.get_insertion_time(sortArr);
-
-
+            random_quick_time[counter] = (int) Functions.get_quick_time(sortArr);
+            
 
             Functions.array_sort(sortArr);
 
-            sorted_insertion_time[counter] = (int)Functions.get_insertion_time(sortArr);
-
-
-
+            sorted_quick_time[counter] = (int) Functions.get_quick_time(sortArr);
 
 
             Functions.almost(sortArr);
 
-            almost_sorted_insertion_time[counter] = (int)Functions.get_insertion_time(sortArr);
-
+            almost_sorted_quick_time[counter] = (int) Functions.get_quick_time(sortArr);
 
 
             Functions.reverse_sort_array(sortArr);
 
-            reverse_sorted_insertion_time[counter] = (int)Functions.get_insertion_time(sortArr);
-
-
-
+            reverse_sorted_quick_time[counter] = (int) Functions.get_quick_time(sortArr);
 
 
             Functions.array_randomizer(sortArr);
 
-            random_selection_time[counter] = (int)Functions.get_selection_time(sortArr);
-
-
+            random_shell_time[counter] = (int) Functions.get_shell_time(sortArr);
+            
 
             Functions.array_sort(sortArr);
 
-            sorted_selection_time[counter] = (int)Functions.get_selection_time(sortArr);
-
+            sorted_shell_time[counter] = (int) Functions.get_shell_time(sortArr);
 
 
             Functions.almost(sortArr);
 
-            almost_sorted_selection_time[counter] = (int)Functions.get_selection_time(sortArr);
-
+            almost_sorted_shell_time[counter] = (int) Functions.get_shell_time(sortArr);
 
 
             Functions.reverse_sort_array(sortArr);
 
-            reverse_sorted_selection_time[counter] = (int)Functions.get_selection_time(sortArr);
-
-
-
-
+            reverse_sorted_shell_time[counter] = (int) Functions.get_shell_time(sortArr);
 
 
             Functions.array_randomizer(sortArr);
 
-            random_merge_time[counter] = (int)Functions.get_merge_time(sortArr);
-
-
+            random_heap_time[counter] = (int) Functions.get_heap_time(sortArr);
+            
 
             Functions.array_sort(sortArr);
 
-            sorted_merge_time[counter] = (int)Functions.get_merge_time(sortArr);
-
-
+            sorted_heap_time[counter] = (int) Functions.get_heap_time(sortArr);
 
             Functions.almost(sortArr);
 
-            almost_sorted_merge_time[counter] = (int)Functions.get_merge_time(sortArr);
-
-
+            almost_sorted_heap_time[counter] = (int) Functions.get_heap_time(sortArr);
 
             Functions.reverse_sort_array(sortArr);
 
-            reverse_sorted_merge_time[counter] = (int)Functions.get_merge_time(sortArr);
-
-
-        Functions.array_randomizer(sortArr);
-
-        random_quick_time[counter] = (int)Functions.get_quick_time(sortArr);
-
-
-
-        Functions.array_sort(sortArr);
-
-        sorted_quick_time[counter] = (int)Functions.get_quick_time(sortArr);
-
-
-
-        Functions.almost(sortArr);
-
-        almost_sorted_quick_time[counter] = (int)Functions.get_quick_time(sortArr);
-
-
-
-        Functions.reverse_sort_array(sortArr);
-
-        reverse_sorted_quick_time[counter] = (int)Functions.get_quick_time(sortArr);
-
-
-
-
+            reverse_sorted_heap_time[counter] = (int) Functions.get_heap_time(sortArr);
 
 
             Functions.array_randomizer(sortArr);
 
-            random_shell_time[counter] = (int)Functions.get_shell_time(sortArr);
-
+            random_hibbard_time[counter] = (int) Functions.get_hibbard_time(sortArr);
+            
 
             Functions.array_sort(sortArr);
 
-            sorted_shell_time[counter] = (int)Functions.get_shell_time(sortArr);
-
-
+            sorted_hibbard_time[counter] = (int) Functions.get_hibbard_time(sortArr);
 
             Functions.almost(sortArr);
 
-            almost_sorted_shell_time[counter] = (int)Functions.get_shell_time(sortArr);
-
-
+            almost_sorted_hibbard_time[counter] = (int) Functions.get_hibbard_time(sortArr);
 
             Functions.reverse_sort_array(sortArr);
 
-            reverse_sorted_shell_time[counter] = (int)Functions.get_shell_time(sortArr);
-
+            reverse_sorted_hibbard_time[counter] = (int) Functions.get_hibbard_time(sortArr);
 
 
             Functions.array_randomizer(sortArr);
 
-            random_heap_time[counter] = (int)Functions.get_heap_time(sortArr);
+            random_pratt_time[counter] = (int) Functions.get_pratt_time(sortArr);
+            
 
             Functions.array_sort(sortArr);
 
-            sorted_heap_time[counter] = (int)Functions.get_heap_time(sortArr);
+            sorted_pratt_time[counter] = (int) Functions.get_pratt_time(sortArr);
 
             Functions.almost(sortArr);
 
-            almost_sorted_heap_time[counter] = (int)Functions.get_heap_time(sortArr);
+            almost_sorted_pratt_time[counter] = (int) Functions.get_pratt_time(sortArr);
 
             Functions.reverse_sort_array(sortArr);
 
-            reverse_sorted_heap_time[counter] = (int)Functions.get_heap_time(sortArr);
-
-
-
-            Functions.array_randomizer(sortArr);
-
-            random_hibbard_time[counter] = (int)Functions.get_hibbard_time(sortArr);
-
-            Functions.array_sort(sortArr);
-
-            sorted_hibbard_time[counter] = (int)Functions.get_hibbard_time(sortArr);
-
-            Functions.almost(sortArr);
-
-            almost_sorted_hibbard_time[counter] = (int)Functions.get_hibbard_time(sortArr);
-
-            Functions.reverse_sort_array(sortArr);
-
-            reverse_sorted_hibbard_time[counter] = (int)Functions.get_hibbard_time(sortArr);
-
-
-
-            Functions.array_randomizer(sortArr);
-
-            random_pratt_time[counter] = (int)Functions.get_pratt_time(sortArr);
-
-            Functions.array_sort(sortArr);
-
-            sorted_pratt_time[counter] = (int)Functions.get_pratt_time(sortArr);
-
-            Functions.almost(sortArr);
-
-            almost_sorted_pratt_time[counter] = (int)Functions.get_pratt_time(sortArr);
-
-            Functions.reverse_sort_array(sortArr);
-
-            reverse_sorted_pratt_time[counter] = (int)Functions.get_pratt_time(sortArr);
+            reverse_sorted_pratt_time[counter] = (int) Functions.get_pratt_time(sortArr);
 
 
             counter++;
@@ -864,3 +823,4 @@ class Main {
     }
 
 }
+
